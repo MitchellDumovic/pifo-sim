@@ -3,7 +3,7 @@
 import simpy
 from utils.hwsim_tools import *
 from pifo_model import PIFO
-from rank_pipes.strict import StrictPipe
+from rank_pipes.stfq import STFQPipe
 
 from utils.stats import flow_stats
 import matplotlib
@@ -29,14 +29,13 @@ class PIFO_tb(HW_sim_object):
 
         self.egress_link_rate = 10 # Gbps
 
-        # TODO: Use the appropriate rank computation
-        self.rank_pipe = StrictPipe(env, period, self.rank_r_in_pipe, self.rank_r_out_pipe, self.rank_w_in_pipe, self.rank_w_out_pipe)
+        self.rank_pipe = STFQPipe(env, period, self.rank_r_in_pipe, self.rank_r_out_pipe, self.rank_w_in_pipe, self.rank_w_out_pipe)
 
         self.pifo = PIFO(env, period, self.pifo_r_in_pipe, self.pifo_r_out_pipe, self.pifo_w_in_pipe, self.pifo_w_out_pipe, self.rank_w_in_pipe, self.rank_w_out_pipe, self.rank_r_in_pipe, self.rank_r_out_pipe, buf_size=BUF_SIZE, num_queues=NUM_QUEUES)
         self.sender = PktSender(env, period, self.pifo_w_in_pipe, self.pifo_w_out_pipe, pkts, q_ids)
         self.receiver = PktReceiver(env, period, self.pifo_r_out_pipe, self.pifo_r_in_pipe, self.egress_link_rate)
 
-        self.env.process(self.wait_complete(len(pkts))) 
+        self.env.process(self.wait_complete(len(pkts)))
 
     def wait_complete(self, num_pkts):
 
@@ -116,4 +115,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

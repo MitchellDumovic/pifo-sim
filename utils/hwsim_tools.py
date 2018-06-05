@@ -56,7 +56,7 @@ class PktGenerator(HW_sim_object):
 
     def start_timer(self, cycle_limit):
         for i in range(cycle_limit):
-            yield self.wait_clock()  
+            yield self.wait_clock()
         self.sim_done = True
 
     def gen_pkts(self):
@@ -82,7 +82,7 @@ class PktGenerator(HW_sim_object):
 
     def send_pkt(self):
             pkt = self.base_pkt.copy()
-            meta = deepcopy(self.base_meta) 
+            meta = deepcopy(self.base_meta)
             # invoke provided callback to provide programmability
             if self.pkt_mod_cb is not None:
                 self.pkt_mod_cb(meta, pkt)
@@ -162,7 +162,6 @@ class Arbiter(HW_sim_object):
                     self.pkts.append((self.env.now, deepcopy(meta), pkt.copy()))
                 yield self.wait_clock()
 
-
-
-
-
+# TODO: create hash functions
+class CRC32(HW_sim_object):
+    def __init__(self, env, period):
