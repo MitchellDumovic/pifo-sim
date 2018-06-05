@@ -13,6 +13,7 @@ import argparse
 BUF_SIZE   = 2**17 # bytes
 NUM_QUEUES = 4
 
+
 class PIFO_tb(HW_sim_object):
     def __init__(self, env, period, pkts, q_ids):
         super(PIFO_tb, self).__init__(env, period)
@@ -29,7 +30,9 @@ class PIFO_tb(HW_sim_object):
 
         self.egress_link_rate = 10 # Gbps
 
-        self.rank_pipe = STFQPipe(env, period, self.rank_r_in_pipe, self.rank_r_out_pipe, self.rank_w_in_pipe, self.rank_w_out_pipe)
+        self.vt_tracker = VirtualTimeTracker()
+        self.CMS_width = 1024
+        self.rank_pipe = STFQPipe(env, period, self.rank_r_in_pipe, self.rank_r_out_pipe, self.rank_w_in_pipe, self.rank_w_out_pipe, self.CMS_width, self.vt_tracker)
 
         self.pifo = PIFO(env, period, self.pifo_r_in_pipe, self.pifo_r_out_pipe, self.pifo_w_in_pipe, self.pifo_w_out_pipe, self.rank_w_in_pipe, self.rank_w_out_pipe, self.rank_r_in_pipe, self.rank_r_out_pipe, buf_size=BUF_SIZE, num_queues=NUM_QUEUES)
         self.sender = PktSender(env, period, self.pifo_w_in_pipe, self.pifo_w_out_pipe, pkts, q_ids)

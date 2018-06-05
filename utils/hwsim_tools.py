@@ -162,6 +162,11 @@ class Arbiter(HW_sim_object):
                     self.pkts.append((self.env.now, deepcopy(meta), pkt.copy()))
                 yield self.wait_clock()
 
+
+class VirtualTimeTracker(object):
+    def __init__(self):
+        self.virtual_time = 0
+
 # TODO: create hash functions
 class CRC32(HW_sim_object):
     def __init__(self, env, period):

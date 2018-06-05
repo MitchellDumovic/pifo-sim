@@ -5,7 +5,7 @@ import simpy
 from utils.hwsim_tools import *
 
 class STFQPipe(HW_sim_object):
-    def __init__(self, env, period, r_in_pipe, r_out_pipe, w_in_pipe, w_out_pipe, CMS_width):
+    def __init__(self, env, period, r_in_pipe, r_out_pipe, w_in_pipe, w_out_pipe, CMS_width, vt_tracker):
         """
         r_in_pipe  : used to receive read result ACK
         r_out_pipe : used to return read result
@@ -29,6 +29,8 @@ class STFQPipe(HW_sim_object):
         self.hash2_cms = [0 for i in range(CMS_width)]
         self.hash3_cms = [0 for i in range(CMS_width)]
 
+        self.vt_tracker = vt_tracker
+
         # register processes for simulation
         self.run()
 
@@ -46,7 +48,7 @@ class STFQPipe(HW_sim_object):
 
             hash1_idx, hash2_idx, hash3_idx = self.get_hash_idxs(pkt)
             penalty = self.get_penalty(hash1_idx, hash2_idx, hash3_idx)
-            virtual_time = self.get_virtual_time()
+            virtual_time = self.vt_tracker.virtual_time
             rank = max(virtual_time, penalty)
             self.set_penalty(rank, pkt, hash1_idx, hash2_idx, hash3_idx)
 
