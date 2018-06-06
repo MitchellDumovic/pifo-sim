@@ -6,7 +6,7 @@ from heapq import heappush, heappop, heapify
 from utils.hwsim_tools import *
 
 class PIFO(HW_sim_object):
-    def __init__(self, env, period, r_in_pipe, r_out_pipe, w_in_pipe, w_out_pipe, rank_w_in_pipe, rank_w_out_pipe, rank_r_in_pipe, rank_r_out_pipe, buf_size=None, num_queues=1):
+    def __init__(self, env, period, r_in_pipe, r_out_pipe, w_in_pipe, w_out_pipe, rank_w_in_pipe, rank_w_out_pipe, rank_r_in_pipe, rank_r_out_pipe, vt_tracker, buf_size=None, num_queues=1):
         """
         r_in_pipe  : used to receive read requests
         r_out_pipe : used to return read result
@@ -100,6 +100,7 @@ class PIFO(HW_sim_object):
                     self.queue_sizes[q_id] -= len(pkt)
                     self.r_out_pipe.put((rank, pkt))
                     read_complete = True
+                    self.vt_tracker.virtual_time = rank
                 else:
                     yield self.wait_clock()
 

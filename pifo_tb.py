@@ -3,7 +3,7 @@
 import simpy
 from utils.hwsim_tools import *
 from pifo_model import PIFO
-from rank_pipes.stfq import STFQPipe
+from rank_pipes.stfq_cms import STFQCMSPipe
 
 from utils.stats import flow_stats
 import matplotlib
@@ -32,9 +32,9 @@ class PIFO_tb(HW_sim_object):
 
         self.vt_tracker = VirtualTimeTracker()
         self.CMS_width = 1024
-        self.rank_pipe = STFQPipe(env, period, self.rank_r_in_pipe, self.rank_r_out_pipe, self.rank_w_in_pipe, self.rank_w_out_pipe, self.CMS_width, self.vt_tracker)
+        self.rank_pipe = STFQCMSPipe(env, period, self.rank_r_in_pipe, self.rank_r_out_pipe, self.rank_w_in_pipe, self.rank_w_out_pipe, self.CMS_width, self.vt_tracker)
 
-        self.pifo = PIFO(env, period, self.pifo_r_in_pipe, self.pifo_r_out_pipe, self.pifo_w_in_pipe, self.pifo_w_out_pipe, self.rank_w_in_pipe, self.rank_w_out_pipe, self.rank_r_in_pipe, self.rank_r_out_pipe, buf_size=BUF_SIZE, num_queues=NUM_QUEUES)
+        self.pifo = PIFO(env, period, self.pifo_r_in_pipe, self.pifo_r_out_pipe, self.pifo_w_in_pipe, self.pifo_w_out_pipe, self.rank_w_in_pipe, self.rank_w_out_pipe, self.rank_r_in_pipe, self.rank_r_out_pipe, self.vt_tracker, buf_size=BUF_SIZE, num_queues=NUM_QUEUES)
         self.sender = PktSender(env, period, self.pifo_w_in_pipe, self.pifo_w_out_pipe, pkts, q_ids)
         self.receiver = PktReceiver(env, period, self.pifo_r_out_pipe, self.pifo_r_in_pipe, self.egress_link_rate)
 

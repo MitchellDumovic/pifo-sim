@@ -7,7 +7,7 @@ from utils.hwsim_tools import *
 
 HASH_POLYS = [0x104c11db7, 0x11edc6f41, 0x11021]
 
-class STFQPipe(HW_sim_object):
+class STFQCMSPipe(HW_sim_object):
     def __init__(self, env, period, r_in_pipe, r_out_pipe, w_in_pipe, w_out_pipe, CMS_width, vt_tracker):
         """
         r_in_pipe  : used to receive read result ACK
