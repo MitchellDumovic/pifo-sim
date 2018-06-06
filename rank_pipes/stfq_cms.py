@@ -86,8 +86,6 @@ class STFQCMSPipe(HW_sim_object):
 
         return min(hash1_penalty, hash2_penalty, hash3_penalty)
 
-    def get_virtual_time(self):
-
     def set_penalty(self, rank, pkt, hash1_idx, hash2_idx, hash3_idx):
         self.hash1_cms[hash1_idx] = rank + len(pkt)
         self.hash2_cms[hash2_idx] = rank + len(pkt)

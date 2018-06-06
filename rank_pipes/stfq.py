@@ -38,7 +38,12 @@ class STFQPipe(HW_sim_object):
             (q_id, pkt) = yield self.w_in_pipe.get()
             self.w_out_pipe.put(1)
 
-            flowTuple = pkt[IP].src + pkt[IP].dst + pkt[IP].proto + pkt[TCP].sport + pkt[TCP].dport
+            flowTuple = pkt[IP].src + pkt[IP].dst + pkt[IP].proto
+            if TCP in pkt:
+                flowTuple += pkt[TCP].sport + pkt[TCP].dport
+            elif UDP in pkt:
+                flowTuple += pkt[UDP].sport + pkt[UDP].dport
+                
             rank = 0
             virtual_time = self.vt_tracker.virtual_time
 
