@@ -15,7 +15,7 @@ class STFQCMSPipe(HW_sim_object):
         w_in_pipe  : used to receive write data
         w_out_pipe : used to indicate write completion
         """
-        super(StrictPipe, self).__init__(env, period)
+        super(STFQCMSPipe, self).__init__(env, period)
 
         # Top level interface
         self.r_in_pipe = r_in_pipe
@@ -62,16 +62,16 @@ class STFQCMSPipe(HW_sim_object):
         hash_fns = [crcmod.Crc(poly, initCrc = 0) for poly in HASH_POLYS]
         hashTuple = 0
 
-        self.update_hashes(pkt[IP].src)
-        self.update_hashes(pkt[IP].dst)
-        self.update_hashes(pkt[IP].proto)
+        self.update_hashes(hash_fns, pkt[IP].src)
+        self.update_hashes(hash_fns, pkt[IP].dst)
+        self.update_hashes(hash_fns, str(pkt[IP].proto))
 
         if (TCP in pkt):
-            self.update_hashes(pkt[TCP].sport)
-            self.update_hashes(pkt[TCP].dport)
+            self.update_hashes(hash_fns, str(pkt[TCP].sport))
+            self.update_hashes(hash_fns, str(pkt[TCP].dport))
         elif (UDP in pkt):
-            self.update_hashes(pkt[UDP].sport)
-            self.update_hashes(pkt[UDP].dport)
+            self.update_hashes(hash_fns, str(pkt[UDP].sport))
+            self.update_hashes(hash_fns, str(pkt[UDP].dport))
 
         hash1_idx = int(hash_fns[0].hexdigest(), 16) % self.CMS_width
         hash2_idx = int(hash_fns[1].hexdigest(), 16) % self.CMS_width

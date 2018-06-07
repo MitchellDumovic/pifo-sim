@@ -11,7 +11,7 @@ class PIFO(HW_sim_object):
         r_in_pipe  : used to receive read requests
         r_out_pipe : used to return read result
         w_in_pipe  : used to receive write data
-        w_out_pipe : used to indicate write completion 
+        w_out_pipe : used to indicate write completion
         """
         super(PIFO, self).__init__(env, period)
 
@@ -29,6 +29,8 @@ class PIFO(HW_sim_object):
 
         self.values = []
 
+        self.vt_tracker = vt_tracker
+
         self.buf_size = buf_size
         self.num_queues = num_queues
 
@@ -44,7 +46,7 @@ class PIFO(HW_sim_object):
             self.queue_sizes[i] = 0
             self.q_size_stats[i] = []
         self.drop_cnt = 0
-        
+
 
         # register processes for simulation
         self.run()
@@ -114,5 +116,3 @@ class PIFO(HW_sim_object):
             for i in range(self.num_queues):
                 self.q_size_stats[i].append(self.queue_sizes[i])
             yield self.wait_clock()
-
-
