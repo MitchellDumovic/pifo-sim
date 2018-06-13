@@ -12,7 +12,7 @@ class STFQPipe(HW_sim_object):
         w_in_pipe  : used to receive write data
         w_out_pipe : used to indicate write completion
         """
-        super(StrictPipe, self).__init__(env, period)
+        super(STFQPipe, self).__init__(env, period)
 
         # Top level interface
         self.r_in_pipe = r_in_pipe
@@ -38,20 +38,20 @@ class STFQPipe(HW_sim_object):
             (q_id, pkt) = yield self.w_in_pipe.get()
             self.w_out_pipe.put(1)
 
-            flowTuple = pkt[IP].src + pkt[IP].dst + pkt[IP].proto
+            flowTuple = pkt[IP].src + pkt[IP].dst + str(pkt[IP].proto)
             if TCP in pkt:
-                flowTuple += pkt[TCP].sport + pkt[TCP].dport
+                flowTuple += str(pkt[TCP].sport) + str(pkt[TCP].dport)
             elif UDP in pkt:
-                flowTuple += pkt[UDP].sport + pkt[UDP].dport
+                flowTuple += str(pkt[UDP].sport) + str(pkt[UDP].dport)
                 
             rank = 0
             virtual_time = self.vt_tracker.virtual_time
 
-            if flowTuple in last_finish: 
-                rank = max(virtual_time, last_finish[flowTuple])
+            if flowTuple in self.last_finish: 
+                rank = max(virtual_time, self.last_finish[flowTuple])
             else:
                 rank = virtual_time
-            last_finish[flowTuple] = rank + len(pkt)
+            self.last_finish[flowTuple] = rank + len(pkt)
 
             self.r_out_pipe.put((rank, q_id, pkt))
             yield self.r_in_pipe.get()

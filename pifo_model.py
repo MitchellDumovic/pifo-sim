@@ -47,7 +47,7 @@ class PIFO(HW_sim_object):
             self.q_size_stats[i] = []
         self.drop_cnt = 0
 
-
+        self.sendCount = 0
         # register processes for simulation
         self.run()
 
@@ -98,6 +98,9 @@ class PIFO(HW_sim_object):
             while not read_complete and not self.sim_done:
                 if len(self.values) > 0:
                     (rank, q_id, pkt) = heappop(self.values)
+                    self.sendCount += 1
+                    if self.sendCount % 100 == 0:
+                        print self.sendCount
                     # decrement q_size
                     self.queue_sizes[q_id] -= len(pkt)
                     self.r_out_pipe.put((rank, pkt))

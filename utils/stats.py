@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 class flow_stats(object):
-    def __init__(self, flowID_tuple, pkt_list, avg_interval=1000):
+    def __init__(self, flowID_tuple, pkt_list, avg_interval=10000):
         """
         flowID_tuple: tuple of tuples used to identify a flow in the pkt_list (e.g. ((IP, 'src'), (IP, 'dst')) )
         pkt_list: a list of nanosecond timestamps and scapy pkts with the format: [(t0, pkt0), (t1, pk1), ...]
@@ -51,28 +51,30 @@ class flow_stats(object):
         dictionary mapping flowIDs to the flow's measured rate
         """
         flow_rates = {}
+        min_time = min(flow_pkts.items(), key=lambda x: x[1][0][0])[1][0][0] - 1
+        max_time = max(flow_pkts.items(), key=lambda x: x[1][-1][0])[1][-1][0] + 1
         for flowID, pkts in flow_pkts.items():
-            prev_time = pkts[0][0]
+            min_range = 0
+            max_range = self.avg_interval
             byte_cnt = 0
             flow_rates[flowID] = []
-            for (cur_time, pkt) in pkts:
-                if cur_time <= prev_time + self.avg_interval:
-                    # increment
+            for (timestamp, pkt) in pkts:
+                if timestamp >= min_range and timestamp < max_range:
                     byte_cnt += len(pkt)
                 else:
-                    # insert 0 samples if needed
-                    for t in range(prev_time, cur_time, self.avg_interval)[0:-2]:
-                        avg_time = (t + self.avg_interval/2.0)
-                        flow_rates[flowID].append((avg_time, 0))
-                        prev_time = t + self.avg_interval
-                    # update
-                    interval = cur_time - prev_time # ns
-                    rate = (byte_cnt*8.0)/float(interval)  # Gbps
-                    avg_time = (cur_time + prev_time)/2.0
+                    avg_time = min_range + self.avg_interval / 2
+                    rate = (byte_cnt*8.0)/float(self.avg_interval)
                     flow_rates[flowID].append((avg_time, rate))
-                    # reset
-                    prev_time = cur_time
-                    byte_cnt = 0
+
+                    min_range += self.avg_interval
+                    max_range += self.avg_interval
+                    while not (timestamp >= min_range and timestamp < max_range):
+                        flow_rates[flowID].append((min_range + self.avg_interval / 2, 0))
+                        
+                        min_range += self.avg_interval
+                        max_range += self.avg_interval
+                    byte_cnt = len(pkt)
+
         return flow_rates
 
 
@@ -84,7 +86,7 @@ class flow_stats(object):
             i += 1
             i = i % len(lines)
 
-    def plot_rates(self, title, ymax=None, linewidth=1):
+    def plot_rates(self, title, ymax=None, linewidth=1, yticks = None):
         """
         Plots the flow rates
         """
@@ -94,12 +96,18 @@ class flow_stats(object):
             rates = [point[1] for point in rate_points]
             if flowID is not None:
                 linestyle = line_generator.next()
-                plt.plot(times, rates, label='Flow {}'.format(flowID[0]), linewidth=linewidth, linestyle=linestyle)
+                colors = ["r", "g", "b", "m", "y"]
+
+                plt.plot(times, rates, linewidth=linewidth, linestyle="-", color=colors[flowID[1] % len(colors)])
         plt.xlabel('time (ns)')
         plt.ylabel('rate (Gbps)')
         plt.title(title)
         #plt.legend(loc='lower right')
-        plt.legend(loc='upper left')
+        #plt.legend(loc='upper left')
+        if yticks is not None:
+            plt.yticks(yticks)
+        plt.xlim(xmin = 0)
+        plt.ylim(ymin = 0)
         if ymax is not None:
             plt.ylim(0, ymax)
 
