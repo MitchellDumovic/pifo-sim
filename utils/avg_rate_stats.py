@@ -117,6 +117,7 @@ class avg_rate_stats(object):
 
 
     # Gets the average variance over all timesteps where all 50 flows are still active
+    # (This is specific to the test)
     def get_var_avg(self):
         filtered = filter(lambda val: val[4] == 50, self.rate_stats.values())
         arr = np.array([val[3] for val in filtered])

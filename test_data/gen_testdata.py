@@ -107,8 +107,36 @@ def test_6():
   return pkts
 
 
+def test_demo():
+  pkts = []
+  NUM_FLOWS = 100
+  
+  for i in range(2 ** 8):
+    for j in range(NUM_FLOWS):
+      pkt = generate_packet(j % len(IP_SRCS), j % len(IP_DSTS), j % len(TCP_SRCS), j, j % len(PAYLOAD_SIZES))
+      pkts.append(pkt)
+  return pkts
 
-TESTS = [test_1, test_2, test_3, test_4]
+wrpcap('src.pcap', test_demo())
 
-for i, test in enumerate(TESTS):
-  wrpcap('src-test-' + str(i + 1) + ".pcap", test())
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# TESTS = [test_1, test_2, test_3, test_4]
+
+# for i, test in enumerate(TESTS):
+#   wrpcap('src-test-' + str(i + 1) + ".pcap", test())
